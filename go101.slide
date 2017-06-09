@@ -1,0 +1,384 @@
+### Introduction
+Go 101
+2017 Summer Internship
+
+Joshua Suggs
+8th June 2017
+
+* History of Go
+
+* History
+- Project started at Google in 2007
+- Open source released in November 2009
+- More than 250 contributors joined the project
+- Version 1.0 was released in March 2012
+
+* Original Designers
+
+*Robert* *Griesemer*
+
+- Google Engineer
+- V8 JavaScript engine
+- Java HotSpot VM
+
+*Rob* *Pike*
+
+- Original Bell Labs Engineer. Now at Google.
+- Created Plan 9 and Inferno OS
+- Wrote the first windows system for Unix in 1981
+- Co-creator of UTF-8 with Ken Thompson
+
+* Original Designers
+
+*Ken* *Thompson*
+
+- Co-created the original Unix OS and C language with Dennis Ritchie
+- Original Bell Labs Engineer. Now at Google.
+- Invented the B programming language, the direct predecessor to C
+- Co-creator of UTF-8 with Rob Pike
+- Early work on regular expressions
+
+* Influenced by
+- C
+- Pascal
+- Smalltalk
+- Oberon
+- Limbo
+- Newsqueak
+
+* Why Go?
+- Go was the answer to solve scalability problems at Google
+
+- Take advantage of the multicore computers
+- Reduce build time in the development process
+- Reduce complexity of features, introduce simplicity
+- Difficulty in updating features with other languages
+- Introduce a language with clear dependencies, syntax, and semantics
+
+* Design Goals
+- Readable, safe, and efficient code.
+- A build system that scales.
+- Good concurrency support.
+- Tools that can operate at Google-scale.
+
+Go was designed by and for people who write—and read and debug and maintain—large software systems.
+
+Go's purpose is not research into programming language design.
+
+Go's purpose is to make its designers' programming lives better.
+
+* Pain points
+
+What makes large-scale development hard with C++ or Java or C# (at least):
+
+- slow builds
+- uncontrolled dependencies
+- each programmer using a different subset of the language
+- poor program understanding (documentation, etc.)
+- duplication of effort
+- cost of updates
+- version skew
+- difficulty of automation (auto rewriters etc.): tooling
+- cross-language builds
+
+Language _features_ don't usually address these.
+
+* System Scale
+- Designed to scale to 1 million+ machines
+- Everyday jobs un on 1000s of machines
+- Jobs coordinate and interact with other systems
+
+Solution: great support for concurrency
+
+* Engineering Scale
+
+- 5000+ developers across 40+ office
+- 20+ changes per min
+- 50% of code the code base changes every month
+- 50 million test cases executed per day
+- Single code tree (yeah, seriously!)
+
+Solution: design the language for large code bases
+
+* Focus
+
+In the design of Go, we tried to focus on solutions to these problems.
+
+* Modernize
+
+The old ways are _old_.
+
+Go should be:
+
+- suitable for multicore machines
+- suitable for networked machines
+- suitable for web development
+
+* What is Go?
+
+Go (golang) is a general purpose, higher-level, imperative programming language.
+
+- Compiled to machine code
+- Statically typed and garbage collected
+- Simple and compact, yet expressive
+- Object- but not type-oriented
+- Strong concurrency as part of the language, not a framework
+- Rich standard library
+- Efficient implementation
+- Package system that allow for better reusability
+- Easy tools necessary to compile, debug, profile, test, and run programs
+
+* The Gopher
+
+.image img/gopher.jpg
+
+* Assuming you know Java...
+- Statically typed
+- Garbage Collected (sub ms cycles)
+- Memory safe (nil references, runtime bounds checks)
+- Methods
+- Interfaces
+- Type assertions (instanceof)
+- Reflection
+
+* But left out ...
+- No classes
+- No constructors
+- No inheritance
+- No final
+- No excpetions
+- No annotations
+- No user-defined generics
+
+* And add some cool stuff ...
+- Programs are compiled to machine code and staically linked (no VM)
+- Control over memory layout*
+- Function values and lexical closures
+- Built in strings (UTF-8)
+- Built in generic maps and slices (arrays)
+- Built in concurrency*
+
+* Language Tools
+
+* Go tools and $GOPATH
+- go tool
+	go run, go build, go install, go doc, go fmt
+- goimports
+	update import statements based on your workspace
+- $GOPATH
+	where all Go code resides
+
+* The Go toolchain has many talents
+
+.code code/gohelp.txt
+
+Worth exploring! Some highlights:
+
+	build       compile packages and dependencies
+	get         download and install packages and dependencies
+	install     compile and install packages and dependencies
+	test        test packages
+
+There are more useful subcommands. Check out vet and fmt.
+
+* Introducing workspaces
+
+Your Go code is kept in a workspace.
+
+A workspace contains many source repositories (git, hg).
+
+The Go tool understands the layout of a workspace.
+
+You don't need a Makefile. The file layout is everything.
+
+Change the file layout, change the build.
+
+.code code/gopath.txt
+
+* Why workspaces
+
+- Using file layout for builds means less configuration.
+- In fact, it means no configuration.
+- No Makefile, no build.xml.
+- No project or solution files.
+- Less time configuring means more time programming.
+- Everyone in the community uses the same layout.
+- This makes it easier to share code.
+- The Go tool helps build the Go community.
+
+* Meet Go
+
+Syntax is not important...unless you are a programmer.
+Rob Pike
+
+The readability of programs is immeasurably more important than their writeability.
+Hints on Programming Language Design
+C. A. R. Hoare 1973
+
+Hello World, Again...
+
+.play code/hello.go /START OMIT/,/END OMIT/
+
+* Packages
+
+A Go program consists of _packages_.
+
+A _package_ consists of one or more _source_ _files_ (.go files).
+
+Each _source_ _file_ starts with a _package_ clause followed by declarations.
+
+.play code/hello.go /START OMIT/,/END OMIT/
+
+For very small programs, main is the only package you need to write.
+
+By convention, all files belonging to a single package are located in a single directory.
+
+* Packages
+
+Packages contain type, function, variable, and constant declarations.
+
+Packages can be very small (package errors has just one declaration) or very large (package net/http has >100 declarations). Most are somewhere in between.
+
+Case determines visibility: Foo is exported, foo is not
+
+* An example package: fmt
+
+.code code/fmt.go
+
+The Println function is exported. It starts with an upper case
+letter, which means other packages are allowed to call it.
+
+The newPrinter function is unexported. It starts with a lower
+case letter, so it can only be used inside the fmt package.
+
+* Dependencies
+
+Dependencies are defined (syntactically) in the language.
+
+Explicit, clear, computable.
+
+	import "encoding/json"
+
+Unused dependencies cause error at compile time.
+
+Efficient: dependencies traversed once per source file...
+
+* Go gettable
+
+* Getting a package
+
+	$ go get github.com/davecgh/go-spew/spew
+
+.play code/spew.go
+
+* Go Treats
+* Is Go an object-oriented language?
+.image img/yes_no.jpg
+
+* Composition over Inheritance
+
+* Struct Embedding
+.code code/phone.go /EMBD_START OMIT/,/EMBD_END OMIT/
+
+* Initialization
+.play code/phone.go /MAIN_START OMIT/,/MAIN_END OMIT/
+
+* Interface
+
+* Defining
+.code code/phone_interface.go /INT_START OMIT/,/INT_END OMIT/
+.code code/phone_interface.go /INT_IMP_START OMIT/,/INT_IMP_END OMIT/
+
+* Using the interface
+.code code/phone_interface.go /CHOOSE_START OMIT/,/CHOOSE_END OMIT/
+
+* Initialization
+.play code/phone_interface.go /MAIN_START OMIT/,/MAIN_END OMIT/
+- Wait... Where is the
+	implement keyword!!!!
+
+* Error Handling
+
+* Simplicity
+.image img/exceptions.png
+.image img/errors.png
+
+* C# Error Handling
+.image img/try-catch.png
+
+* Go Error Handling
+- Reduces complexity of code flow
+.image img/go-error.png
+
+* Concurrency
+*CSP* - Commuincating Sequential Processes (Hoare, 1978)
+
+- Sequential execution is easy to understand and scale. Async callbacks are not.
+- "Don't communication by sharing memory, share memory by communicating"
+
+CSP in Go: goroutines, channels, select
+
+* Goroutines
+- Goroutines are like lightweight threads
+- They start with a tiny stack and resize as needed
+- Go programs change have hundreds of thousands of them
+- The Go runtime schedules them onto an OS thread
+
+* Channels
+- Provide communication between goroutines
+
+* goroutines and channels
+.play code/pingpong.go /MAIN_START OMIT/,/MAIN_END OMIT/
+
+* channels
+.code code/pingpong.go /TURN_START OMIT/,/TURN_END OMIT/
+
+* select
+.code code/pingpong.go /KEEPER_START OMIT/,/KEEPER_END OMIT/
+
+* Things to be aware of
+- No generics
+- Go allows closures
+- gomobile toolchain: create SDK libraries for Android and iOS apps
+- zero values with implicit initialization
+- backwards compatible versions of Go
+- statements over expressions
+- naming convention is real!
+- simplicity, simplicity, simplicity!
+
+* We're not alone
+.image img/companies.png
+
+
+* Recap
+
+"Consensus drove the design. Nothing went into the language until [Ken Thompson, Robert Griesemer, and myself] all agreed that it was right. Some features didn’t get resolved until after a year or more of discussion."
+- Rob Pike
+
+"Go is a wise, clean, insightful, fresh thinking approach to the greatest-hits subset of the well understood."
+- Michael T. Jones (former Chief Technology Advocate at Google)
+
+Go is:
+
+- Lightweight, avoids unnecessary repetition
+- Object Oriented, but not in the usual way
+- Concurrent, in a way that keeps you sane
+- Designed for working programmers
+
+* Resources
+- Why is Go, Go?
+.link https://golang.org/doc/faq
+.link https://talks.golang.org/2012/splash.article
+- Idiomatic Go
+.link https://golang.org/doc/code.html
+.link https://golang.org/doc/effective_go.html
+- Communities
+.link https://forum.golangbridge.org/
+.link http://reddit.com/r/golang
+- More resources
+.link http://internalwiki.acs.tech/display/RD/GO+Lang+Resources
+
+*   .
+.image img/notimpressed.jpg
+
+* Judge it for yourself, Get going with Go!

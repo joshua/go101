@@ -1,0 +1,10 @@
+$GOPATH/
+    src/
+        github.com/user/repo/
+            mypkg/
+                mysrc1.go
+                mysrc2.go
+            cmd/mycmd/
+                main.go
+    bin/
+        mycmd
